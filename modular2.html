@@ -1,0 +1,82 @@
+
+<style type="text/css">
+canvas {
+  margin: 20px;
+  cursor: crosshair;
+}
+</style>
+
+<button onclick="javascript:go()">Start</button>
+<button onclick="javascript:reset()">Reset</button>
+<hr/>
+<canvas id="canvas1" width="800" height="800"></canvas>
+
+<script type="text/javascript">
+
+var canvas1 = document.getElementById("canvas1");
+
+var ctx = canvas1.getContext("2d");
+
+var tau = Math.PI * 2;
+
+function rect(z) {
+  return {
+    x: z.r * Math.cos(z.theta),
+    y: z.r * Math.sin(z.theta),
+  };
+}
+
+var WORLD = 1000;
+var SIZE = 800;
+var minX = 0;
+var maxX = SIZE;
+var minY = SIZE;
+var maxY = 0;
+var a = 0;
+
+var running = false;
+
+var cursorPt = { a: 0, b: 0 };
+
+canvas1.onmousemove = function(evt) {
+  //draw(evt.offsetX/10 + evt.offsetY/10);
+};
+
+function drawCircle(ctx, x, y, r, m, a) {
+  ctx.fillText(a.toFixed(2), 10, 30);
+  for (var i = 0; i < m; i++) {
+    var j = (i * a) % m;
+    var iRect = rect({ r: r, theta: i * tau / m});
+    var jRect = rect({ r: r, theta: j * tau / m});
+    ctx.beginPath();
+    ctx.moveTo(x - iRect.x, y - iRect.y);
+    ctx.lineTo(x - jRect.x, y - jRect.y);
+    ctx.stroke();
+    ctx.closePath();
+  }
+}
+
+function draw() {
+  if (!running) return;
+  ctx.clearRect(0, 0, maxX, minY);
+  ctx.lineWidth = 0.5;
+  var c = Math.floor(a / 100 * 360) % 360;
+  ctx.strokeStyle = 'hsl(' + c + ',100%,50%)';
+  ctx.font = "24px Arial";
+  drawCircle(ctx, SIZE/2, SIZE/2, SIZE/2, WORLD, a);
+  setTimeout(function() {
+    a += 0.01;
+    draw();
+  }, 50);
+}
+
+function go() {
+  running = !running;
+  draw();
+}
+
+function reset() {
+  a = 0;
+}
+
+</script>
