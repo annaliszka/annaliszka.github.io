@@ -10,6 +10,9 @@ canvas {
 <button onclick="javascript:reset()">Reset</button>
 <hr/>
 <canvas id="canvas1" width="800" height="800"></canvas>
+<hr/>
+<button onclick="javascript:plus(10)">+10</button>
+<button onclick="javascript:plus(100)">+100</button>
 
 <script type="text/javascript">
 
@@ -78,5 +81,8 @@ function go() {
 function reset() {
   a = 0;
 }
-
+  
+function plus(n) {
+  a += n;
+}
 </script>
