@@ -4,6 +4,11 @@ canvas {
   margin: 20px;
   cursor: crosshair;
 }
+button {
+  padding: 10px;
+  margin: 5px;
+  font-size: 18px;
+}
 </style>
 
 <button onclick="javascript:go()">Start</button>
@@ -11,8 +16,17 @@ canvas {
 <hr/>
 <canvas id="canvas1" width="800" height="800"></canvas>
 <hr/>
+<button onclick="javascript:plus(1)">+1</button>
+<button onclick="javascript:plus(5)">+5</button>
 <button onclick="javascript:plus(10)">+10</button>
+<button onclick="javascript:plus(50)">+50</button>
 <button onclick="javascript:plus(100)">+100</button>
+<br/>
+<button onclick="javascript:plus(-1)">-1</button>
+<button onclick="javascript:plus(-5)">-5</button>
+<button onclick="javascript:plus(-10)">-10</button>
+<button onclick="javascript:plus(-50)">-50</button>
+<button onclick="javascript:plus(-100)">-100</button>
 
 <script type="text/javascript">
 
