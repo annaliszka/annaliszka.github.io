@@ -1,0 +1,115 @@
+
+<style type="text/css">
+canvas {
+  margin: 20px;
+}
+</style>
+
+<button onclick="setN(4)">4</button>
+<button onclick="setN(10)">10</button>
+<button onclick="setN(28)">28</button>
+<button onclick="setN(82)">82</button>
+<button onclick="setN(244)">244</button>
+<button onclick="next()">next</button>
+<button onclick="random()">random</button>
+<hr/>
+<canvas id="canvas" width="1000" height="1000"></canvas>
+
+<script type="text/javascript">
+
+var canvas = document.getElementById("canvas");
+
+var ctx = canvas.getContext("2d");
+
+var tau = Math.PI * 2;
+
+var N = 4;
+var WIDTH;
+var toprow;
+var triangle;
+var COLORS = ['red', 'yellow', 'blue'];
+
+function init() {
+  n = 0;
+  WIDTH = 800 / N;
+  toprow = [];
+  triangel = [];
+  for (var i = 0; i < N; i++) {
+    toprow[i] = 0;
+  }
+}
+init();
+
+function f(a, b) {
+  return (6-a-b) % 3;
+}
+
+function setN(n) {
+  N = n;
+  init();
+  calculateTriangle();
+  draw();  
+}
+
+var n = 0;
+function next() {
+  toprow[n % N] = n % 3; 
+  n++;
+  calculateTriangle();
+  draw();
+}
+
+function random() {
+  for (var i = 0; i < N; i++) {
+    toprow[i] = Math.floor(Math.random() * 3);
+  }
+  calculateTriangle();
+  draw();  
+}
+
+
+function calculateTriangle() {
+  triangle = [toprow];
+  for (var i = 1; i < N; i++) {
+    var row = [];
+    for (var j = 0; j < N-i; j++) {
+      row[j] = f(triangle[i-1][j], triangle[i-1][j+1]);
+    }
+    triangle[i] = row;
+  }
+}
+
+function drawCircle(x, y, r, color) {
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.moveTo(x, y);
+  ctx.arc(x, y, r, 0, tau);
+  ctx.fill();
+  ctx.closePath();
+}
+
+function draw() {
+  ctx.clearRect(0, 0, 1000, 1000);
+  for (var i = 0; i < N; i++) {
+    for (var j = 0; j < N-i; j++) {
+      var x = (j + 0.5) * WIDTH + i * WIDTH / 2;
+      var y = (i + 0.5) * WIDTH * 0.9;
+      var r = WIDTH * 0.45;
+      drawCircle(x, y, r, COLORS[triangle[i][j]]);
+    }
+  }
+}
+
+canvas.onclick = function(event) {
+  var i = Math.floor(event.offsetX / WIDTH);
+  console.log(i);
+  toprow[i] = (toprow[i] + 1) % 3;
+  calculateTriangle();
+  draw();    
+}
+
+
+calculateTriangle();
+draw();
+
+</script>
