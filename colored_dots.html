@@ -5,13 +5,23 @@ canvas {
 }
 </style>
 
-<button onclick="setN(4)">4</button>
-<button onclick="setN(10)">10</button>
-<button onclick="setN(28)">28</button>
-<button onclick="setN(82)">82</button>
-<button onclick="setN(244)">244</button>
+<button onclick="setN(4, 3)">4</button>
+<button onclick="setN(10, 3)">10</button>
+<button onclick="setN(28, 3)">28</button>
+<button onclick="setN(82, 3)">82</button>
+<button onclick="setN(244, 3)">244</button>
 <button onclick="next()">next</button>
 <button onclick="random()">random</button>
+<button onclick="split()">split</button>
+<br/>
+<button onclick="setN(3, 2)">3</button>
+<button onclick="setN(5, 2)">5</button>
+<button onclick="setN(9, 2)">9</button>
+<button onclick="setN(17, 2)">17</button>
+<button onclick="setN(33, 2)">33</button>
+<button onclick="setN(65, 2)">65</button>
+<button onclick="setN(129, 2)">129</button>
+<button onclick="setN(257, 2)">257</button>
 <hr/>
 <canvas id="canvas" width="1000" height="1000"></canvas>
 
@@ -24,10 +34,16 @@ var ctx = canvas.getContext("2d");
 var tau = Math.PI * 2;
 
 var N = 4;
+var M = 3;
 var WIDTH;
 var toprow;
 var triangle;
-var COLORS = ['red', 'yellow', 'blue'];
+var COLORS = [
+  [],
+  [],
+  ['pink', 'purple'],
+  ['red', 'yellow', 'blue']
+];
 
 function init() {
   n = 0;
@@ -41,11 +57,12 @@ function init() {
 init();
 
 function f(a, b) {
-  return (6-a-b) % 3;
+  return (2*M-a-b) % M;
 }
 
-function setN(n) {
+function setN(n, m) {
   N = n;
+  M = m;
   init();
   calculateTriangle();
   draw();  
@@ -53,7 +70,7 @@ function setN(n) {
 
 var n = 0;
 function next() {
-  toprow[n % N] = n % 3; 
+  toprow[n % N] = n % M; 
   n++;
   calculateTriangle();
   draw();
@@ -61,12 +78,19 @@ function next() {
 
 function random() {
   for (var i = 0; i < N; i++) {
-    toprow[i] = Math.floor(Math.random() * 3);
+    toprow[i] = Math.floor(Math.random() * M);
   }
   calculateTriangle();
   draw();  
 }
 
+function split() {
+  for (var i = 0; i < N; i++) {
+    toprow[i] = i < N/2 ? 0 : 1;
+  }
+  calculateTriangle();
+  draw();  
+}
 
 function calculateTriangle() {
   triangle = [toprow];
@@ -95,15 +119,14 @@ function draw() {
       var x = (j + 0.5) * WIDTH + i * WIDTH / 2;
       var y = (i + 0.5) * WIDTH * 0.9;
       var r = WIDTH * 0.45;
-      drawCircle(x, y, r, COLORS[triangle[i][j]]);
+      drawCircle(x, y, r, COLORS[M][triangle[i][j]]);
     }
   }
 }
 
 canvas.onclick = function(event) {
   var i = Math.floor(event.offsetX / WIDTH);
-  console.log(i);
-  toprow[i] = (toprow[i] + 1) % 3;
+  toprow[i] = (toprow[i] + 1) % M;
   calculateTriangle();
   draw();    
 }
