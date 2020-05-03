@@ -1,0 +1,282 @@
+
+<style type="text/css">
+body {
+  background: black;
+}
+canvas {
+  margin: 20px;
+  cursor: crosshair;
+  background: black;
+}
+button {
+  padding: 5px;
+  margin-right: 10px;
+  font-size: 14pt;
+  min-width: 30px;
+}
+</style>
+
+<button onclick="setRule(snowflake)">snowflake</button>
+<button onclick="setRule(sierpinski)">sierpinski</button>
+<button onclick="setRule(dragon)">dragon</button>
+<button onclick="setRule(crab)">crab</button>
+<button onclick="setRule(snake)">snake</button>
+<button onclick="setRule(grass)">grass</button>
+<button onclick="setRule(anna)">anna</button>
+<button onclick="incIters(1)">+</button>
+<button onclick="incIters(-1)">-</button>
+<br/>
+<canvas id="canvas1" width="800" height="800"></canvas>
+
+<script type="text/javascript">
+
+var rule = snowflake;
+var iters = 0;
+function setRule(r) {
+  iters = 1;
+  rule = r;
+  draw();
+}
+function incIters(i) {
+  iters += i;
+  draw();
+}
+
+var canvas1 = document.getElementById("canvas1");
+
+var ctx = canvas1.getContext("2d");
+
+var tau = Math.PI * 2;
+var step = 0.01;
+
+var stack = [];
+var state = {
+  x: 400,
+  y: 400,
+  angle: 90,
+}
+
+var fd = function(params) {
+  state.x += params.length * Math.cos(state.angle * tau / 360);
+  state.y -= params.length * Math.sin(state.angle * tau / 360);
+  ctx.lineTo(state.x, state.y);
+}
+
+var rt = function(params) {
+  state.angle -= params.angle;
+}
+
+var lt = function(params) {
+  state.angle += params.angle;
+}
+
+var noop = function(params) {}
+
+var push = function(params) {
+  stack.push({
+    x: state.x,
+    y: state.y,
+    angle: state.angle,
+  })
+}
+
+var pop = function(params) {
+  state = stack.pop();
+  ctx.moveTo(state.x, state.y);
+}
+
+var home = function() {
+  state = {
+    x: 400,
+    y: 400,
+    angle: 90,
+  }
+}
+
+var snowflake = {
+  x: 50,
+  y: 400,
+  heading: 0,
+  init: 'A',
+  length: 700,
+  angle: 60,
+  scale: 1.0/3,
+  replacements: {
+    'A': 'A-A++A-A'
+  },
+  draw: {
+    'A': fd,
+    '-': lt,
+    '+': rt,
+  }
+}
+
+var sierpinski = {
+  x: 50,
+  y: 700,
+  heading: 0,
+  init: 'A',
+  length: 700,
+  angle: 60,
+  scale: 0.5,
+  replacements: {
+    'A': '-B+A+B-',
+    'B': '+A-B-A+'
+  },
+  draw: {
+    'A': fd,
+    'B': fd,
+    '-': lt,
+    '+': rt,
+  }
+}
+
+var dragon = {
+  x: 100,
+  y: 400,
+  heading: 0,
+  init: 'A',
+  length: 500,
+  angle: 45,
+  scale: 1/Math.sqrt(2),
+  replacements: {
+    'A': '-B++A-',
+    'B': '+B--A+'
+  },
+  draw: {
+    'A': fd,
+    'B': fd,
+    '-': lt,
+    '+': rt,
+  }
+}
+
+var crab = {
+  x: 100,
+  y: 400,
+  heading: 0,
+  init: 'A',
+  length: 500,
+  angle: 45,
+  scale: 1/Math.sqrt(2),
+  replacements: {
+    'A': '-B++A-',
+    'B': '+A--B+'
+  },
+  draw: {
+    'A': fd,
+    'B': fd,
+    '-': lt,
+    '+': rt,
+  }
+}
+
+var snake = {
+  x: 100,
+  y: 400,
+  heading: 0,
+  init: 'A',
+  length: 400,
+  angle: 45,
+  scale: 1/(2*Math.sqrt(2)),
+  replacements: {
+    'A': '-A++AA--A+',
+  },
+  draw: {
+    'A': fd,
+    'B': fd,
+    '-': lt,
+    '+': rt,
+  }
+}
+
+var anna = {
+  x: 100,
+  y: 400,
+  heading: 0,
+  init: 'A',
+  length: 600,
+  angle: 90,
+  scale: 0.5,
+  replacements: {
+    'A': 'A+A++A+A',
+  },
+  draw: {
+    'A': fd,
+    '-': lt,
+    '+': rt,
+  }
+}
+
+var grass = {
+  x: 100,
+  y: 600,
+  heading: 65,
+  init: 'X',
+  length: 240,
+  angle: 25,
+  scale: 0.5,
+  replacements: {
+    'X': 'F+[[X]-X]-F[-FX]+X',
+    'F': 'FF',
+  },
+  draw: {
+    'F': fd,
+    'X': noop,
+    '-': rt,
+    '+': lt,
+    '[': push,
+    ']': pop,
+  }
+}
+
+function iteration(rule, n) {
+  ctx.strokeStyle = 'hsl(' + (n*36) + ',100%,50%)';
+  ctx.beginPath();
+  ctx.moveTo(rule.x, rule.y);
+  state = {
+    x: rule.x,
+    y: rule.y,
+    angle: rule.heading,
+  };
+  var pattern = applyRules(rule.init, rule.replacements, n);
+  drawPattern(pattern, rule.draw, {
+    length: rule.length * Math.pow(rule.scale, n), 
+    angle: rule.angle,
+  });
+  ctx.stroke();
+}
+
+function applyRules(init, replacements, n) {
+  if (n <= 0) {
+    return init;
+  }
+  var next = '';
+  for (var i = 0; i < init.length; i++) {
+    var c = init.charAt(i);
+    next += replacements[c] || c;
+  }
+  return applyRules(next, replacements, n-1);
+}
+
+function drawPattern(pattern, draw, params) {
+  for (var i = 0; i < pattern.length; i++) {  
+    draw[pattern.charAt(i)](params);
+  }
+}
+
+function iterations(rule, n) {
+  for (var i = 0; i <= n; i++) {
+    iteration(rule, i);
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, 800, 800);
+  iteration(rule, iters-1);
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+  ctx.fillRect(0, 0, 800, 800);
+  iteration(rule, iters);
+}
+
+</script>
