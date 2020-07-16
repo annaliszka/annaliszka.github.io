@@ -1,0 +1,138 @@
+
+
+<canvas id="canvas" width="900" height="900" style="float:left; margin-right: 5px"></canvas>
+<div>
+  <button onclick="step()" style="margin:5px">step</button><br/>
+  <button onclick="start()" style="margin:5px">start</button><br/>
+  <button onclick="reset()" style="margin:5px">reset</button><br/>
+  <div style="margin:15px">
+    Color:<br/>
+    <input type="radio" name="color" id="color-angle" onclick="setColor(true)" checked>angle<br/>
+    <input type="radio" name="color" id="color-speed" onclick="setColor(false)">speed<br/>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
+ctx.fillStyle = "#000";
+
+var tau = Math.PI * 2;
+
+var randomize;
+var running;
+var interval;
+var colorAngle = true;
+
+var N = 150;
+var WIDTH = 900;
+var LEN = WIDTH / N;
+var pts = [];
+var pts2 = [];
+
+function init() {
+  pts = [];
+  pts2 = [];
+  for (var i = 0; i < N; i++) {
+    pts.push([]);
+    pts2.push([]);
+    for (var j = 0; j < N; j++) {
+      pts[i].push(0);
+      pts2[i].push(0);
+    }
+  }
+}
+
+function draw() {
+  ctx.clearRect(0, 0, WIDTH, WIDTH);
+  for (var i = 0; i < N; i++) {
+    for (var j = 0; j < N; j++) {
+      var x = (i + 0.5) * LEN;
+      var y = (j + 0.5) * LEN;
+      if (colorAngle) {
+        var hue = Math.round((pts[i][j] + tau) / tau * 2 * 360) % 360;
+        ctx.strokeStyle = 'hsl(' + hue + ', 100%, 50%)';
+      } else {
+        var diff = Math.sqrt(Math.min(
+          0.01, 
+          Math.abs(pts[i][j] - pts2[i][j]),
+          Math.abs(pts[i][j] - pts2[i][j] + tau),
+          Math.abs(pts[i][j] - pts2[i][j] - tau),
+        ));
+        var hue = (360 + 240 - Math.round(300 * diff / 0.1)) % 360;
+        ctx.strokeStyle = 'hsl(' + hue + ', 100%, 50%)';
+      }
+      ctx.beginPath();
+      //ctx.moveTo(x - 0.4*LEN*Math.cos(pts[i][j]), y - 0.4*LEN*Math.sin(pts[i][j]));
+      //ctx.lineTo(x + 0.4*LEN*Math.cos(pts[i][j]), y + 0.4*LEN*Math.sin(pts[i][j]));
+      ctx.moveTo(x, y);
+      ctx.lineTo(x + LEN * Math.cos(pts[i][j]), y + LEN * Math.sin(pts[i][j]));
+      ctx.stroke();
+    }
+  }
+}
+
+var it = 0;
+function iter() {
+  it++;
+  for (var i = 0; i < N; i++) {
+    for (var j = 0; j < N; j++) {
+      var tx = 0;
+      var ty = 0;
+      for (var a = -1; a <= 1; a++) {
+        for (var b = -1; b <= 1; b++) {
+          var t = pts[(i + a + N) % N][(j + b + N) % N];
+          tx += Math.cos(t);
+          ty += Math.sin(t);
+        }
+      }
+      pts2[i][j] = Math.atan2(ty, tx);
+      if (randomize) {
+        pts2[i][j] += Math.random() * 1.2 - 0.6;
+      }
+    }
+  }
+
+  if (randomize) {
+    randomize = false;
+  }
+
+  var temp = pts;
+  pts = pts2;
+  pts2 = temp;
+}
+
+function step() {
+  iter();
+  draw();
+}
+
+function start() {
+  if (!running) {
+    running = true;
+    interval = window.setInterval(step, 1);
+  } else {
+    running = false;
+    window.clearInterval(interval);
+  }
+}
+
+function reset() {
+  for (var i = 0; i < N; i++) {
+    for (var j = 0; j < N; j++) {
+      pts[i][j] = Math.random() * tau - tau/2;
+    }
+  }
+}
+
+function setColor(angle) {
+  colorAngle = angle;
+}
+
+init();
+reset();
+iter();
+draw();
+
+</script>
