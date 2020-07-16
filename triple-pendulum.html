@@ -3,7 +3,12 @@
  <canvas id="layer1" width="800" height="800"
    style="position: absolute; left: 0; top: 0; z-index: 0;"></canvas>
  <canvas id="layer2" width="800" height="800"
-   style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>
+   style="position: absolute; left: 0; top: 0; z-index: 1;"></canvas>   
+</div>
+<div style="position: absolute; top:750; z-index: 2;">
+  Color:
+  <input type="radio" name="color" onclick="setColor(true)" checked/>rainbow
+  <input type="radio" name="color" onclick="setColor(false)"/>red/green/blue
 </div>
 <div style="font-family: monospace;position: relative; z-index: 2;">
   <div>
@@ -15,7 +20,9 @@
     r<sub>3</sub> = <input id="r3" size="3" value="1"/>
     <input type="button" onclick="reset()" value="reset"/>
     <input type="button" onclick="pause()" value="pause"/>
+
   </div>
+  <br/>
   <div>E<sub>&nbsp;</sub> = <span id="e"></span></div>
   <div>T<sub>1</sub> = <span id="t1"></span></div>
   <div>V<sub>1</sub> = <span id="v1"></span></div>
@@ -41,7 +48,7 @@ ctx1.fillStyle = "rgba(255, 0, 0, 0.3)";
 
 var layer2 = document.getElementById("layer2");
 var ctx = layer2.getContext("2d");
-ctx.fillStyle = "#000";
+ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
 ctx.strokeStyle = "rgba(0, 0, 0, 0.3)";
 
 var cos = Math.cos;
@@ -63,8 +70,13 @@ var e = 0;
 
 var N = 36;
 var p = [];
+var rainbow = true;
 var paused = false;
 var interval;
+
+function setColor(color) {
+  rainbow = color;
+}
 
 function pause() {
   if (paused) {
@@ -187,21 +199,21 @@ reset();
 interval = window.setInterval(step, 1);
 
 function draw(theta1, theta2, theta3, r1, r2, r3, i) {
-  ctx.beginPath();
-  ctx.moveTo(400, 300);
   var x1 = r1 * cos(theta1) + 400;
   var y1 = r1 * sin(theta1) + 300;
-  ctx.lineTo(x1, y1);
   var x2 = x1 + r2 * cos(theta2);
   var y2 = y1 + r2 * sin(theta2);
-  ctx.lineTo(x2, y2);
   var x3 = x2 + r3 * cos(theta3);
   var y3 = y2 + r3 * sin(theta3);
-  ctx.lineTo(x3, y3);
-  ctx.stroke();
-
 
   ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+
+  ctx.beginPath();
+  ctx.moveTo(400, 300);
+  ctx.lineTo(x1, y1);
+  ctx.lineTo(x2, y2);
+  ctx.lineTo(x3, y3);
+  ctx.stroke();
 
   ctx.beginPath();
   ctx.arc(x1, y1, Math.sqrt(m1 * 30), 0, tau);
@@ -218,16 +230,19 @@ function draw(theta1, theta2, theta3, r1, r2, r3, i) {
   ctx.closePath();
   ctx.fill();
 
+  if (rainbow) {
+    ctx1.fillStyle = "hsla(" + Math.round(360/N*i) + ", 100%, 50%, 0.5)";
+    ctx1.fillRect(x3, y3, 1, 1);
+  } else {
+    ctx1.fillStyle = "rgba(255, 0, 0, 0.3)";
+    ctx1.fillRect(x1, y1, 1, 1);
 
-/*
-  ctx1.fillStyle = "rgba(255, 0, 0, 0.3)";
-  ctx1.fillRect(x1, y1, 1, 1);
+    ctx1.fillStyle = "rgba(0, 255, 0, 0.3)";
+    ctx1.fillRect(x2, y2, 1, 1);    
 
-  ctx1.fillStyle = "rgba(0, 255, 0, 0.3)";
-  ctx1.fillRect(x2, y2, 1, 1);
-*/
-  ctx1.fillStyle = "hsla(" + Math.round(360/N*i) + ", 100%, 50%, 0.5)";
-  ctx1.fillRect(x3, y3, 1, 1);
+    ctx1.fillStyle = "rgba(0, 0, 255, 0.3)";
+    ctx1.fillRect(x3, y3, 1, 1);
+  }
 }
 
 
