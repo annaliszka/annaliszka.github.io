@@ -2,10 +2,9 @@
 
 <canvas id="canvas" width="900" height="900" style="float:left; margin-right: 5px"></canvas>
 <div>
-  <button onclick="step()" style="margin:5px">step</button><br/>
   <button onclick="start()" style="margin:5px">start</button><br/>
-  <button onclick="reset()" style="margin:5px">reset</button><br/>
-  Heat: <input type="range" min="0" max="100" value="0" onchange="heat(this.value)" style="margin:5px"/><br/>
+  <button onclick="randomize()" style="margin:5px">randomize</button><br/>
+  Heat: <input type="range" min="0" max="100" value="40" onchange="heat(this.value)" style="margin:5px"/><br/>
   <div style="margin:15px">
     Color:<br/>
     <input type="radio" name="color" id="color-angle" onclick="setColor(true)" checked>angle</input><br/>
@@ -23,7 +22,7 @@ var tau = Math.PI * 2;
 
 var randomize;
 var running;
-var heatLevel = 0;
+var heatLevel = 40;
 var interval;
 var colorAngle = true;
 
@@ -124,7 +123,7 @@ function start() {
   }
 }
 
-function reset() {
+function randomize() {
   for (var i = 0; i < N; i++) {
     for (var j = 0; j < N; j++) {
       pts[i][j] = Math.random() * tau - tau/2;
@@ -141,7 +140,6 @@ function heat(level) {
 }
 
 init();
-iter();
 draw();
 
 </script>
