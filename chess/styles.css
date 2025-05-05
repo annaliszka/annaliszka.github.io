@@ -1,8 +1,13 @@
+html, body {
+    overscroll-behavior: none;
+    position: fixed;
+    overflow: hidden;
+}
+
 body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin: 20px;
-    overscroll-behavior: none;
 }
 
 #board-container {
